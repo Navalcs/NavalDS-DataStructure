@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Implementation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 1000px;
+            padding: 30px;
+            border-radius: 15px;
+            width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            min-height: 50px; /* Minimum height for output area */
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer:hover {
+            color: white;
+        }
+
+        #myChart {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Graph Implementation</h1>
+        
+        <h2>Add Vertex</h2>
+        <input type="text" id="vertexInput" placeholder="Enter vertex">
+        <button onclick="addVertex()">Add Vertex</button>
+        
+        <h2>Add Edge</h2>
+        <input type="text" id="edgeInput1" placeholder="Enter first vertex">
+        <input type="text" id="edgeInput2" placeholder="Enter second vertex">
+        <button onclick="addEdge()">Add Edge</button>
+        
+        <h2>Depth-First Search (DFS)</h2>
+        <input type="text" id="dfsInput" placeholder="Start vertex for DFS">
+        <button onclick="performDFS()">Perform DFS</button>
+        <div class="output" id="dfsOutput"></div>
+        
+        <h2>Breadth-First Search (BFS)</h2>
+        <input type="text" id="bfsInput" placeholder="Start vertex for BFS">
+        <button onclick="performBFS()">Perform BFS</button>
+        <div class="output" id="bfsOutput"></div>
+        
+        <h2>Graph Representation</h2>
+        <pre class="output" id="graphDisplay"></pre>
+        
+        <canvas id="myChart"></canvas>
+        
+        <button class="back-button" onclick="window.history.back()">Back</button>
+    </div>
+    <script>
+        class Graph {
+            constructor() {
+                this.adjacencyList = {};
+            }
+            addVertex(vertex) {
+                if (!this.adjacencyList[vertex]) {
+                    this.adjacencyList[vertex] = [];
+                }
+            }
+            addEdge(v1, v2) {
+                if (this.adjacencyList[v1] && this.adjacencyList[v2]) {
+                    this.adjacencyList[v1].push(v2);
+                    this.adjacencyList[v2].push(v1); // Undirected graph
+                }
+            }
+            dfs(vertex) {
+                const result = [];
+                const visited = {};
+                const dfsHelper = (v) => {
+                    if (!v) return;
+                    visited[v] = true;
+                    result.push(v);
+                    this.adjacencyList[v].forEach(neighbor => {
+                        if (!visited[neighbor]) {
+                            dfsHelper(neighbor);
+                        }
+                    });
+                };
+                dfsHelper(vertex);
+                return result;
+            }
+            bfs(start) {
+                const result = [];
+                const queue = [start];
+                const visited = {};
+                visited[start] = true;
+                while (queue.length) {
+                    const vertex = queue.shift();
+                    result.push(vertex);
+                    this.adjacencyList[vertex].forEach(neighbor => {
+                        if (!visited[neighbor]) {
+                            visited[neighbor] = true;
+                            queue.push(neighbor);
+                        }
+                    });
+                }
+                return result;
+            }
+        }
+
+        const graph = new Graph();
+
+        function addVertex() {
+            const vertex = document.getElementById('vertexInput').value.trim();
+            if (vertex) {
+                graph.addVertex(vertex);
+                document.getElementById('vertexInput').value = '';
+                displayGraph();
+                visualizeGraph();
+                showMessage(`Vertex "${vertex}" added successfully!`);
+            } else {
+                showMessage("Please enter a valid vertex name.");
+            }
+        }
+
+        function addEdge() {
+            const v1 = document.getElementById('edgeInput1').value.trim();
+            const v2 = document.getElementById('edgeInput2').value.trim();
+            if (v1 && v2 && v1 !== v2) {
+                graph.addEdge(v1, v2);
+                document.getElementById('edgeInput1').value = '';
+                document.getElementById('edgeInput2').value = '';
+                displayGraph();
+                visualizeGraph();
+                showMessage(`Edge added between "${v1}" and "${v2}" successfully!`);
+            } else {
+                showMessage("Please enter valid different vertex names.");
+            }
+        }
+
+        function performDFS() {
+            const startVertex = document.getElementById('dfsInput').value.trim();
+            const result = graph.dfs(startVertex);
+            document.getElementById('dfsOutput').textContent = `DFS Result: ${result.length ? result.join(', ') : 'No vertices found.'}`;
+        }
+
+        function performBFS() {
+            const startVertex = document.getElementById('bfsInput').value.trim();
+            const result = graph.bfs(startVertex);
+            document.getElementById('bfsOutput').textContent = `BFS Result: ${result.length ? result.join(', ') : 'No vertices found.'}`;
+        }
+
+        function displayGraph() {
+            const graphDisplay = document.getElementById('graphDisplay');
+            graphDisplay.textContent = JSON.stringify(graph.adjacencyList, null, 2);
+        }
+
+        function visualizeGraph() {
+            const ctx = document.getElementById('myChart').getContext('2d');
+
+            const vertices = Object.keys(graph.adjacencyList);
+            const edges = [];
+            vertices.forEach(vertex => {
+                graph.adjacencyList[vertex].forEach(neighbor => {
+                    edges.push({ x: vertex.charCodeAt(0) * 10, y: neighbor.charCodeAt(0) * 10 });
+                });
+            });
+
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Graph Visualization',
+                        data: edges,
+                        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { beginAtZero: true },
+                        y: { beginAtZero: true },
+                    }
+                }
+            });
+        }
+
+        function showMessage(message) {
+            const output = document.createElement('div');
+            output.style.color = 'lightyellow';
+            output.textContent = message;
+            document.body.appendChild(output);
+            setTimeout(() => {
+                output.remove();
+            }, 3000);
+        }
+    </script>
+    <footer>
+        © 2024 Graph Visualization Tool
+    </footer>
+</body>
+</html>

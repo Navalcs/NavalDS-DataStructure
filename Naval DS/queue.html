@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Implementation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .output p {
+            margin: 0;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Queue Operations</h1>
+
+        <!-- Input and Button Section -->
+        <input type="text" id="queueValue" placeholder="Enter value to enqueue (letters or numbers)" />
+        <button onclick="enqueue()">Enqueue</button>
+        <button onclick="dequeue()">Dequeue</button>
+        <button onclick="displayQueue()">Display Queue</button>
+
+        <!-- Output Section -->
+        <div class="output" id="output"></div>
+
+        <!-- Back to Home Button -->
+        <button class="back-button" onclick="goHome()">Back to Home</button>
+    </div>
+
+    <footer>&copy; 2024 Queue Application</footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        class Queue {
+            constructor() {
+                this.items = [];
+            }
+
+            enqueue(value) {
+                this.items.push(value);
+            }
+
+            dequeue() {
+                if (this.isEmpty()) {
+                    return null;  // Queue is empty
+                }
+                return this.items.shift();  // Remove and return the front element
+            }
+
+            front() {
+                if (this.isEmpty()) {
+                    return null;  // Queue is empty
+                }
+                return this.items[0];  // Return the front element
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+
+            traverse() {
+                return this.items;  // Return all queue elements
+            }
+        }
+
+        // Initialize the Queue
+        const queue = new Queue();
+
+        // Enqueue value into Queue with validation
+        function enqueue() {
+            const queueValue = document.getElementById('queueValue').value.trim();
+
+            // Validate input (ensure it contains only letters or numbers)
+            if (!queueValue) {
+                displayMessage('Please enter a value to enqueue.');
+                return;
+            } else if (!/^[a-zA-Z0-9]+$/.test(queueValue)) {
+                displayMessage('Please enter only letters or numbers.');
+                return;
+            }
+
+            queue.enqueue(queueValue);
+            document.getElementById('queueValue').value = '';  // Clear input
+            displayMessage(`Enqueued value: ${queueValue}`);
+        }
+
+        // Dequeue value from Queue
+        function dequeue() {
+            const dequeuedValue = queue.dequeue();
+
+            if (dequeuedValue !== null) {
+                displayMessage(`Dequeued value: ${dequeuedValue}`);
+            } else {
+                displayMessage('Queue is empty. Nothing to dequeue.');
+            }
+        }
+
+        // Display all Queue values
+        function displayQueue() {
+            const values = queue.traverse();
+
+            if (values.length > 0) {
+                displayMessage(`Queue values: ${values.join(' -> ')}`);
+            } else {
+                displayMessage('The queue is empty.');
+            }
+        }
+
+        // Display message in output section
+        function displayMessage(message) {
+            const output = document.getElementById('output');
+            output.innerHTML = `<p>${message}</p>`;
+        }
+
+        // Back to Home
+        function goHome() {
+            window.location.href = "index.html";  // Assuming index.html is the home page
+        }
+    </script>
+
+</body>
+</html>

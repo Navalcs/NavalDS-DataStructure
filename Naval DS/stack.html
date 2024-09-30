@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Implementation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .output p {
+            margin: 0;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Stack Operations</h1>
+
+        <!-- Input and Button Section -->
+        <input type="text" id="stackValue" placeholder="Enter value to push (letters or numbers)" />
+        <button onclick="pushStack()">Push</button>
+        <button onclick="popStack()">Pop</button>
+        <button onclick="peekStack()">Peek</button>
+        <button onclick="traverseStack()">Traverse Stack</button>
+
+        <!-- Output Section -->
+        <div class="output" id="output"></div>
+
+        <!-- Back to Home Button -->
+        <button class="back-button" onclick="goHome()">Back to Home</button>
+    </div>
+
+    <footer>&copy; 2024 Stack Application</footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        class Stack {
+            constructor() {
+                this.items = [];
+            }
+
+            push(value) {
+                this.items.push(value);
+            }
+
+            pop() {
+                if (this.isEmpty()) {
+                    return null;  // Stack is empty
+                }
+                return this.items.pop();
+            }
+
+            peek() {
+                if (this.isEmpty()) {
+                    return null;  // Stack is empty
+                }
+                return this.items[this.items.length - 1];
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+
+            traverse() {
+                return this.items;
+            }
+        }
+
+        // Initialize the Stack
+        const stack = new Stack();
+
+        // Push value into Stack with validation
+        function pushStack() {
+            const stackValue = document.getElementById('stackValue').value.trim();
+
+            // Validate input (ensure it contains only letters or numbers)
+            if (!stackValue) {
+                displayMessage('Please enter a value to push.');
+                return;
+            } else if (!/^[a-zA-Z0-9]+$/.test(stackValue)) {
+                displayMessage('Please enter only letters or numbers.');
+                return;
+            }
+
+            stack.push(stackValue);
+            document.getElementById('stackValue').value = ''; // Clear input
+            displayMessage(`Pushed value: ${stackValue}`);
+        }
+
+        // Pop value from Stack
+        function popStack() {
+            const poppedValue = stack.pop();
+
+            if (poppedValue !== null) {
+                displayMessage(`Popped value: ${poppedValue}`);
+            } else {
+                displayMessage('Stack is empty. Nothing to pop.');
+            }
+        }
+
+        // Peek value in Stack and show all data
+        function peekStack() {
+            const peekedValue = stack.peek();
+            const allData = stack.traverse();
+
+            if (peekedValue !== null) {
+                displayMessage(`Stack values: ${allData.join(' -> ')}<br/>Top value (Peek): ${peekedValue}`);
+            } else {
+                displayMessage('Stack is empty. Nothing to peek.');
+            }
+        }
+
+        // Traverse and display all Stack values
+        function traverseStack() {
+            const values = stack.traverse();
+            if (values.length > 0) {
+                displayMessage(`Stack values: ${values.join(' -> ')}`);
+            } else {
+                displayMessage('The stack is empty.');
+            }
+        }
+
+        // Display message in output section
+        function displayMessage(message) {
+            const output = document.getElementById('output');
+            output.innerHTML = `<p>${message}</p>`;
+        }
+
+        // Back to Home
+        function goHome() {
+            window.location.href = "index.html"; // Assuming index.html is the home page
+        }
+    </script>
+
+</body>
+</html>

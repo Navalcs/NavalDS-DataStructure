@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveling Salesman Problem</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .output p {
+            margin: 0;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer:hover {
+            color: white;
+        }
+
+        #graph {
+            border: 1px solid #fff;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Traveling Salesman Problem</h1>
+    <div class="container">
+        <button onclick="findTSP()">Find Optimal Route</button>
+        <div class="output" id="output"></div>
+        <canvas id="graph" width="500" height="500"></canvas>
+    </div>
+    <footer>
+        &copy; 2024 Your Name
+    </footer>
+
+    <script>
+        const cities = ["A", "B", "C", "D"];
+        const distances = {
+            A: { B: 10, C: 15, D: 20 },
+            B: { A: 10, C: 35, D: 25 },
+            C: { A: 15, B: 35, D: 30 },
+            D: { A: 20, B: 25, C: 30 }
+        };
+        const coordinates = {
+            A: { x: 100, y: 100 },
+            B: { x: 400, y: 100 },
+            C: { x: 400, y: 400 },
+            D: { x: 100, y: 400 }
+        };
+
+        function drawGraph() {
+            const canvas = document.getElementById('graph');
+            const ctx = canvas.getContext('2d');
+            for (let city in coordinates) {
+                ctx.fillStyle = '#ff5722';
+                ctx.beginPath();
+                ctx.arc(coordinates[city].x, coordinates[city].y, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+                ctx.fillStyle = '#fff';
+                ctx.fillText(city, coordinates[city].x - 5, coordinates[city].y + 5);
+            }
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            for (let city in distances) {
+                for (let neighbor in distances[city]) {
+                    ctx.beginPath();
+                    ctx.moveTo(coordinates[city].x, coordinates[city].y);
+                    ctx.lineTo(coordinates[neighbor].x, coordinates[neighbor].y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function calculateDistance(route) {
+            let totalDistance = 0;
+            for (let i = 0; i < route.length - 1; i++) {
+                totalDistance += distances[route[i]][route[i + 1]];
+            }
+            totalDistance += distances[route[route.length - 1]][route[0]]; // Return to start
+            return totalDistance;
+        }
+
+        function permute(arr, l, r, result) {
+            if (l === r) {
+                result.push([...arr]);
+            } else {
+                for (let i = l; i <= r; i++) {
+                    [arr[l], arr[i]] = [arr[i], arr[l]]; // Swap
+                    permute(arr, l + 1, r, result);
+                    [arr[l], arr[i]] = [arr[i], arr[l]]; // Backtrack
+                }
+            }
+        }
+
+        function findTSP() {
+            const result = [];
+            permute(cities, 0, cities.length - 1, result);
+            let minDistance = Infinity;
+            let bestRoute = [];
+            for (let route of result) {
+                const distance = calculateDistance(route);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    bestRoute = route;
+                }
+            }
+            updateOutput(`Optimal Route: ${bestRoute.join(" -> ")}\nTotal Distance: ${minDistance}`);
+        }
+
+        function updateOutput(message) {
+            const output = document.getElementById('output');
+            output.innerText = message;
+        }
+
+        window.onload = drawGraph;
+    </script>
+</body>
+</html>

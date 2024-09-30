@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priority Queue Implementation</title>
+    <style>
+         body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .output p {
+            margin: 0;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer:hover {
+            color: white;
+        }
+
+        #tree {
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            height: 400px;
+            width: 800px;
+            background: white;
+        }
+
+        .node {
+            fill: #007bff;
+            stroke: #0056b3;
+            stroke-width: 2px;
+        }
+
+        .line {
+            stroke: #333;
+            stroke-width: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Priority Queue Operations</h1>
+
+        <!-- Input and Button Section -->
+        <input type="text" id="queueValue" placeholder="Enter value" />
+        <input type="number" id="queuePriority" placeholder="Enter priority (higher is processed first)" />
+        <button onclick="enqueue()">Enqueue</button>
+        <button onclick="dequeue()">Dequeue</button>
+        <button onclick="displayQueue()">Display Queue</button>
+
+        <!-- Output Section -->
+        <div class="output" id="output"></div>
+
+        <!-- Back to Home Button -->
+        <button class="back-button" onclick="goHome()">Back to Home</button>
+    </div>
+
+    <footer>&copy; 2024 Priority Queue Application</footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        class PriorityQueue {
+            constructor() {
+                this.items = [];
+            }
+
+            enqueue(value, priority) {
+                this.items.push({ value, priority });
+                // Sort the queue based on priority (lower priority number means higher priority)
+                this.items.sort((a, b) => a.priority - b.priority);
+            }
+
+            dequeue() {
+                if (this.isEmpty()) {
+                    return null; // Queue is empty
+                }
+                return this.items.shift().value; // Remove and return the item with highest priority
+            }
+
+            front() {
+                if (this.isEmpty()) {
+                    return null; // Queue is empty
+                }
+                return this.items[0].value; // Return the front (highest priority) item
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+
+            traverse() {
+                return this.items.map(item => `${item.value} (Priority: ${item.priority})`);
+            }
+        }
+
+        // Initialize the Priority Queue
+        const priorityQueue = new PriorityQueue();
+
+        // Enqueue value into Priority Queue with validation
+        function enqueue() {
+            const queueValue = document.getElementById('queueValue').value.trim();
+            const queuePriority = parseInt(document.getElementById('queuePriority').value.trim());
+
+            // Validate input (ensure value is not empty and priority is a number)
+            if (!queueValue) {
+                displayMessage('Please enter a value.');
+                return;
+            } else if (isNaN(queuePriority)) {
+                displayMessage('Please enter a valid number for priority.');
+                return;
+            }
+
+            priorityQueue.enqueue(queueValue, queuePriority);
+            document.getElementById('queueValue').value = '';  // Clear value input
+            document.getElementById('queuePriority').value = '';  // Clear priority input
+            displayMessage(`Enqueued value: ${queueValue} with priority: ${queuePriority}`);
+        }
+
+        // Dequeue value from Priority Queue
+        function dequeue() {
+            const dequeuedValue = priorityQueue.dequeue();
+
+            if (dequeuedValue !== null) {
+                displayMessage(`Dequeued value: ${dequeuedValue}`);
+            } else {
+                displayMessage('Queue is empty. Nothing to dequeue.');
+            }
+        }
+
+        // Display all Priority Queue values
+        function displayQueue() {
+            const values = priorityQueue.traverse();
+
+            if (values.length > 0) {
+                displayMessage(`Queue values: ${values.join(' -> ')}`);
+            } else {
+                displayMessage('The queue is empty.');
+            }
+        }
+
+        // Display message in output section
+        function displayMessage(message) {
+            const output = document.getElementById('output');
+            output.innerHTML = `<p>${message}</p>`;
+        }
+
+        // Back to Home
+        function goHome() {
+            window.location.href = "index.html";  // Assuming index.html is the home page
+        }
+    </script>
+
+</body>
+</html>

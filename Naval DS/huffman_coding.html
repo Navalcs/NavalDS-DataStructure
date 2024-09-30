@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huffman Coding</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <style>
+        /* CSS styles for Huffman Coding */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .output p {
+            margin: 0;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Huffman Coding</h1>
+        <input type="text" id="inputString" placeholder="Enter string to encode">
+        <button onclick="handleEncode()">Encode</button>
+        <div class="output" id="encodedOutput"></div>
+        <div class="output" id="codesOutput"></div>
+        
+        <input type="text" id="encodedString" placeholder="Enter encoded string to decode">
+        <button onclick="handleDecode()">Decode</button>
+        <div class="output" id="decodedOutput"></div>
+        
+        <button class="back-button" onclick="window.history.back()">Back</button>
+    </div>
+
+    <footer>
+        &copy; 2024 Huffman Coding
+    </footer>
+
+    <script>
+        class MinHeap {
+            constructor() {
+                this.nodes = [];
+            }
+            insert(node) {
+                this.nodes.push(node);
+                this.bubbleUp();
+            }
+            bubbleUp() {
+                let index = this.nodes.length - 1;
+                while (index > 0) {
+                    const parentIndex = Math.floor((index - 1) / 2);
+                    if (this.nodes[index].frequency >= this.nodes[parentIndex].frequency) break;
+                    [this.nodes[index], this.nodes[parentIndex]] = [this.nodes[parentIndex], this.nodes[index]];
+                    index = parentIndex;
+                }
+            }
+            remove() {
+                const root = this.nodes[0];
+                const end = this.nodes.pop();
+                if (this.nodes.length > 0) {
+                    this.nodes[0] = end;
+                    this.sinkDown();
+                }
+                return root;
+            }
+            sinkDown() {
+                let index = 0;
+                const length = this.nodes.length;
+                const element = this.nodes[0];
+                while (true) {
+                    let leftChildIndex = 2 * index + 1;
+                    let rightChildIndex = 2 * index + 2;
+                    let leftChild, rightChild;
+                    let swap = null;
+                    if (leftChildIndex < length) {
+                        leftChild = this.nodes[leftChildIndex];
+                        if (leftChild.frequency < element.frequency) {
+                            swap = leftChildIndex;
+                        }
+                    }
+                    if (rightChildIndex < length) {
+                        rightChild = this.nodes[rightChildIndex];
+                        if ((swap === null && rightChild.frequency < element.frequency) ||
+                            (swap !== null && rightChild.frequency < leftChild.frequency)) {
+                            swap = rightChildIndex;
+                        }
+                    }
+                    if (swap === null) break;
+                    this.nodes[index] = this.nodes[swap];
+                    this.nodes[swap] = element;
+                    index = swap;
+                }
+            }
+            isEmpty() {
+                return this.nodes.length === 0;
+            }
+        }
+
+        class HuffmanNode {
+            constructor(char, frequency) {
+                this.char = char;
+                this.frequency = frequency;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        function buildHuffmanTree(charFrequencies) {
+            const heap = new MinHeap();
+            for (const [char, freq] of Object.entries(charFrequencies)) {
+                heap.insert(new HuffmanNode(char, freq));
+            }
+            while (heap.nodes.length > 1) {
+                const left = heap.remove();
+                const right = heap.remove();
+                const combined = new HuffmanNode(null, left.frequency + right.frequency);
+                combined.left = left;
+                combined.right = right;
+                heap.insert(combined);
+            }
+            return heap.remove();
+        }
+
+        function generateCodes(node, prefix = '', codes = {}) {
+            if (node.char) {
+                codes[node.char] = prefix;
+            } else {
+                generateCodes(node.left, prefix + '0', codes);
+                generateCodes(node.right, prefix + '1', codes);
+            }
+            return codes;
+        }
+
+        function encode(input) {
+            const charFrequencies = {};
+            for (const char of input) {
+                charFrequencies[char] = (charFrequencies[char] || 0) + 1;
+            }
+            const huffmanTree = buildHuffmanTree(charFrequencies);
+            const huffmanCodes = generateCodes(huffmanTree);
+            let encoded = '';
+            for (const char of input) {
+                encoded += huffmanCodes[char];
+            }
+            return { encoded, codes: huffmanCodes };
+        }
+
+        function decode(encoded, codes) {
+            let current = '';
+            let decoded = '';
+            const reversedCodes = Object.fromEntries(Object.entries(codes).map(([k, v]) => [v, k]));
+            for (const bit of encoded) {
+                current += bit;
+                if (current in reversedCodes) {
+                    decoded += reversedCodes[current];
+                    current = '';
+                }
+            }
+            return decoded;
+        }
+
+        function handleEncode() {
+            const input = document.getElementById('inputString').value;
+            const { encoded, codes } = encode(input);
+            document.getElementById('encodedOutput').textContent = `Encoded: ${encoded}`;
+            document.getElementById('codesOutput').textContent = `Codes: ${JSON.stringify(codes)}`;
+        }
+
+        function handleDecode() {
+            const encoded = document.getElementById('encodedString').value;
+            const codes = JSON.parse(document.getElementById('codesOutput').textContent.replace('Codes: ', ''));
+            const decoded = decode(encoded, codes);
+            document.getElementById('decodedOutput').textContent = `Decoded: ${decoded}`;
+        }
+    </script>
+</body>
+</html>

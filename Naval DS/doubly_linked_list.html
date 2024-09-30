@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doubly Linked List with Validation</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #141e30, #243b55);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #1de9b6, #1dc4e9);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #1dc4e9, #1de9b6);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .output p {
+            margin: 0;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        footer:hover {
+            color: white;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Doubly Linked List</h1>
+
+        <!-- Input and Button Section -->
+        <input type="text" id="nodeValue" placeholder="Enter value to insert" />
+        <button onclick="insertNode()">Insert Node</button>
+        <input type="text" id="deleteValue" placeholder="Enter value to delete" />
+        <button onclick="deleteNode()">Delete Node</button>
+        <button onclick="forwardTraverse()">Forward Traverse</button>
+        <button onclick="backwardTraverse()">Backward Traverse</button>
+
+        <!-- Output Section -->
+        <div class="output" id="output"></div>
+
+        <!-- Back to Home Button -->
+        <button class="back-button" onclick="goHome()">Back to Home</button>
+    </div>
+
+    <footer>&copy; 2024 Data Structures Application</footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        class DNode {
+            constructor(value) {
+                this.value = value;
+                this.next = null;
+                this.prev = null;
+            }
+        }
+
+        class DoublyLinkedList {
+            constructor() {
+                this.head = null;
+                this.tail = null;
+            }
+
+            insert(value) {
+                const newNode = new DNode(value);
+                if (!this.head) {
+                    this.head = newNode;
+                    this.tail = newNode;
+                    return;
+                }
+                newNode.prev = this.tail;
+                this.tail.next = newNode;
+                this.tail = newNode;
+            }
+
+            delete(value) {
+                if (!this.head) return false;
+                if (this.head.value === value) {
+                    this.head = this.head.next;
+                    if (this.head) this.head.prev = null;
+                    return true;
+                }
+                let current = this.head;
+                while (current) {
+                    if (current.value === value) {
+                        if (current.next) {
+                            current.next.prev = current.prev;
+                        }
+                        if (current.prev) {
+                            current.prev.next = current.next;
+                        }
+                        return true;
+                    }
+                    current = current.next;
+                }
+                return false;
+            }
+
+            forwardTraverse() {
+                const values = [];
+                let current = this.head;
+                while (current) {
+                    values.push(current.value);
+                    current = current.next;
+                }
+                return values;
+            }
+
+            backwardTraverse() {
+                const values = [];
+                let current = this.tail;
+                while (current) {
+                    values.push(current.value);
+                    current = current.prev;
+                }
+                return values;
+            }
+
+            contains(value) {
+                let current = this.head;
+                while (current) {
+                    if (current.value === value) return true;
+                    current = current.next;
+                }
+                return false;
+            }
+        }
+
+        // Initialize the Doubly Linked List
+        const list = new DoublyLinkedList();
+
+        // Insert Node with Validation
+        function insertNode() {
+            const nodeValue = document.getElementById('nodeValue').value.trim();
+
+            if (!nodeValue) {
+                displayMessage('Please enter a value to insert.');
+                return;
+            }
+
+            // Check if value already exists in the list
+            if (list.contains(nodeValue)) {
+                displayMessage(`Node with value '${nodeValue}' already exists.`);
+                return;
+            }
+
+            list.insert(nodeValue);
+            document.getElementById('nodeValue').value = ''; // Clear input
+            displayMessage(`Inserted node with value: ${nodeValue}`);
+        }
+
+        // Delete Node with Validation
+        function deleteNode() {
+            const deleteValue = document.getElementById('deleteValue').value.trim();
+
+            if (!deleteValue) {
+                displayMessage('Please enter a value to delete.');
+                return;
+            }
+
+            // Try to delete and check if the value existed
+            const deleted = list.delete(deleteValue);
+            if (deleted) {
+                displayMessage(`Deleted node with value: ${deleteValue}`);
+            } else {
+                displayMessage(`Node with value '${deleteValue}' not found.`);
+            }
+
+            document.getElementById('deleteValue').value = ''; // Clear input
+        }
+
+        // Forward Traverse List and Display Values
+        function forwardTraverse() {
+            const values = list.forwardTraverse();
+            if (values.length > 0) {
+                displayMessage(`List values (forward): ${values.join(' - -> ')}`);
+            } else {
+                displayMessage('The list is empty.');
+            }
+        }
+
+        // Backward Traverse List and Display Values
+        function backwardTraverse() {
+            const values = list.backwardTraverse();
+            if (values.length > 0) {
+                displayMessage(`List values (backward): ${values.join(' <- - ')}`);
+            } else {
+                displayMessage('The list is empty.');
+            }
+        }
+
+        // Display Message
+        function displayMessage(message) {
+            const output = document.getElementById('output');
+            output.innerHTML = `<p>${message}</p>`;
+        }
+
+        // Back to Home
+        function goHome() {
+            window.location.href = "index.html"; // Assuming index.html is the home page
+        }
+    </script>
+
+</body>
+</html>

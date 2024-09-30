@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tree Visualization</title>
+    <style>
+   body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(45deg, #141e30, #243b55);
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #fefefe;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input {
+    padding: 10px;
+    width: calc(100% - 22px);
+    margin-bottom: 10px;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #28a745; /* Keep focus border color */
+    outline: none;
+}
+
+button {
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #1dc4e9, #1de9b6);
+    color: rgb(255, 253, 253);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #1dc4e9, #1de9b6);
+    transform: scale(1.05);
+}
+
+
+.back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+#tree {
+    margin: 20px auto;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    height: 400px;
+    width: 800px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.node {
+    fill: #007bff;
+    stroke: #0056b3;
+    stroke-width: 2px;
+}
+
+.line {
+    stroke: #333;
+    stroke-width: 2px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+footer:hover {
+    color: #333;
+}
+
+
+    </style>
+    <!-- Include D3.js from CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+    <h1>Binary Tree Visualization</h1>
+    <div class="form-group">
+        <label for="root">Root Node:</label>
+        <input type="number" id="root" placeholder="Enter root node value" required>
+        <button onclick="setRoot()">Set Root</button>
+    </div>
+    <div class="form-group">
+        <label for="left">Left Child:</label>
+        <input type="number" id="left" placeholder="Enter left child value">
+        <button onclick="setChild('left')">Set Left Child</button>
+    </div>
+    <div class="form-group">
+        <label for="right">Right Child:</label>
+        <input type="number" id="right" placeholder="Enter right child value">
+        <button onclick="setChild('right')">Set Right Child</button>
+    </div>
+    <button onclick="generateTree()">Generate Binary Tree</button>
+    <button onclick="resetTree()">Reset</button>
+    <button class="back-button" onclick="goHome()">Back to Home</button>
+
+
+    <div id="output"></div>
+    <svg id="tree"></svg>
+
+    <script>
+        class TreeNode {
+            constructor(value) {
+                this.value = value;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        class BinaryTree {
+            constructor() {
+                this.root = null;
+            }
+
+            insert(value) {
+                const newNode = new TreeNode(value);
+                if (!this.root) {
+                    this.root = newNode;
+                } else {
+                    this._insertNode(this.root, newNode);
+                }
+            }
+
+            _insertNode(node, newNode) {
+                if (newNode.value < node.value) {
+                    if (!node.left) {
+                        node.left = newNode;
+                    } else {
+                        this._insertNode(node.left, newNode);
+                    }
+                } else {
+                    if (!node.right) {
+                        node.right = newNode;
+                    } else {
+                        this._insertNode(node.right, newNode);
+                    }
+                }
+            }
+
+            setChild(value, direction) {
+                const newNode = new TreeNode(value);
+                if (!this.root) {
+                    alert("Please set a root node first.");
+                    return;
+                }
+                if (direction === 'left') {
+                    this.root.left = newNode; // Set the left child of the root
+                } else {
+                    this.root.right = newNode; // Set the right child of the root
+                }
+            }
+
+            inorder() {
+                return this._inorderTraversal(this.root);
+            }
+
+            _inorderTraversal(node) {
+                return node ? [
+                    ...this._inorderTraversal(node.left),
+                    node.value,
+                    ...this._inorderTraversal(node.right),
+                ] : [];
+            }
+
+            preorder() {
+                return this._preorderTraversal(this.root);
+            }
+
+            _preorderTraversal(node) {
+                return node ? [
+                    node.value,
+                    ...this._preorderTraversal(node.left),
+                    ...this._preorderTraversal(node.right),
+                ] : [];
+            }
+
+            postorder() {
+                return this._postorderTraversal(this.root);
+            }
+
+            _postorderTraversal(node) {
+                return node ? [
+                    ...this._postorderTraversal(node.left),
+                    ...this._postorderTraversal(node.right),
+                    node.value,
+                ] : [];
+            }
+        }
+
+        const tree = new BinaryTree();
+
+        function setRoot() {
+            const rootValue = document.getElementById("root").value;
+            if (rootValue) {
+                tree.insert(parseInt(rootValue));
+                visualizeTree();
+            } else {
+                alert("Please enter a valid number for the root node.");
+            }
+        }
+
+        function setChild(direction) {
+            const childValue = direction === 'left' ? document.getElementById("left").value : document.getElementById("right").value;
+            if (childValue) {
+                tree.setChild(parseInt(childValue), direction);
+                visualizeTree();
+            } else {
+                alert(`Please enter a valid number for the ${direction} child.`);
+            }
+        }
+
+        function generateTree() {
+            const output = document.getElementById("output");
+            output.innerHTML = `<strong>Inorder Traversal:</strong> ${tree.inorder().join(', ')}<br>
+                                <strong>Preorder Traversal:</strong> ${tree.preorder().join(', ')}<br>
+                                <strong>Postorder Traversal:</strong> ${tree.postorder().join(', ')}`;
+            visualizeTree();
+        }
+
+        function resetTree() {
+            tree.root = null;
+            document.getElementById("root").value = '';
+            document.getElementById("left").value = '';
+            document.getElementById("right").value = '';
+            document.getElementById("output").innerHTML = '';
+            d3.select("#tree").selectAll("*").remove(); // Clear the tree visualization
+        }
+
+        function visualizeTree() {
+            const svg = d3.select("#tree");
+            svg.selectAll("*").remove(); // Clear previous drawings
+
+            function drawNode(node, x, y, offset) {
+                if (node === null) return;
+
+                svg.append("circle")
+                    .attr("class", "node")
+                    .attr("cx", x)
+                    .attr("cy", y)
+                    .attr("r", 20);
+
+                svg.append("text")
+                    .attr("x", x)
+                    .attr("y", y + 5)
+                    .attr("text-anchor", "middle")
+                    .text(node.value);
+
+                drawNode(node.left, x - offset, y + 60, offset / 2);
+                drawNode(node.right, x + offset, y + 60, offset / 2);
+
+                if (node.left) {
+                    svg.append("line")
+                        .attr("class", "line")
+                        .attr("x1", x)
+                        .attr("y1", y + 20)
+                        .attr("x2", x - offset)
+                        .attr("y2", y + 60)
+                        .attr("marker-end", "url(#arrow)");
+                }
+
+                if (node.right) {
+                    svg.append("line")
+                        .attr("class", "line")
+                        .attr("x1", x)
+                        .attr("y1", y + 20)
+                        .attr("x2", x + offset)
+                        .attr("y2", y + 60)
+                        .attr("marker-end", "url(#arrow)");
+                }
+            }
+
+            svg.append("defs").append("marker")
+                .attr("id", "arrow")
+                .attr("viewBox", "0 0 10 10")
+                .attr("refX", 5)
+                .attr("refY", 5)
+                .attr("markerWidth", 4)
+                .attr("markerHeight", 4)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,0 L0,10 L10,5 z")
+                .attr("fill", "#ffffff");
+
+            if (tree.root) {
+                drawNode(tree.root, 400, 20, 200);
+            }
+        }
+
+        visualizeTree();
+
+         // Back to Home
+         function goHome() {
+            window.location.href = "index.html"; // Assuming index.html is the home page
+        }
+    </script>
+
+    <footer>Binary Tree Visualization App</footer>
+</body>
+</html>

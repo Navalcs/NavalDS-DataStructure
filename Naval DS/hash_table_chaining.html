@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hash Table with Chaining</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #66ccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #f12711, #f5af19);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .output p {
+            margin: 0;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            background: #f57c00;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #ef6c00;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Hash Table</h1>
+
+        <form id="insertForm">
+            <input type="text" id="key" placeholder="Enter key" required>
+            <input type="text" id="value" placeholder="Enter value" required>
+            <button type="submit">Insert</button>
+        </form>
+
+        <form id="getForm">
+            <input type="text" id="getKey" placeholder="Get value by key" required>
+            <button type="submit">Get</button>
+        </form>
+
+        <form id="removeForm">
+            <input type="text" id="removeKey" placeholder="Remove by key" required>
+            <button type="submit">Remove</button>
+        </form>
+
+        <div class="output" id="output"></div>
+        <button class="back-button" onclick="goBack()">Back</button>
+    </div>
+
+    <footer>
+        &copy; 2024 Your Name
+    </footer>
+
+    <script>
+        class HashTable {
+            constructor(size) {
+                this.size = size;
+                this.table = new Array(size);
+            }
+
+            hash(key) {
+                let hashValue = 0;
+                for (let char of key) {
+                    hashValue += char.charCodeAt(0);
+                }
+                return hashValue % this.size;
+            }
+
+            insert(key, value) {
+                const index = this.hash(key);
+                if (!this.table[index]) {
+                    this.table[index] = [];
+                }
+                for (let entry of this.table[index]) {
+                    if (entry.key === key) {
+                        entry.value = value;
+                        return;
+                    }
+                }
+                this.table[index].push({ key, value });
+            }
+
+            get(key) {
+                const index = this.hash(key);
+                if (this.table[index]) {
+                    for (let entry of this.table[index]) {
+                        if (entry.key === key) {
+                            return entry.value;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            remove(key) {
+                const index = this.hash(key);
+                if (this.table[index]) {
+                    this.table[index] = this.table[index].filter(entry => entry.key !== key);
+                }
+            }
+
+            display() {
+                let result = '';
+                for (let i = 0; i < this.table.length; i++) {
+                    if (this.table[i]) {
+                        result += `${i}: ${JSON.stringify(this.table[i])}<br>`;
+                    }
+                }
+                return result;
+            }
+        }
+
+        const hashTable = new HashTable(10);
+
+        document.getElementById('insertForm').onsubmit = function(e) {
+            e.preventDefault();
+            const key = document.getElementById('key').value;
+            const value = document.getElementById('value').value;
+            hashTable.insert(key, value);
+            document.getElementById('output').innerHTML = hashTable.display();
+            this.reset();
+        };
+
+        document.getElementById('getForm').onsubmit = function(e) {
+            e.preventDefault();
+            const key = document.getElementById('getKey').value;
+            const value = hashTable.get(key);
+            document.getElementById('output').innerHTML = value !== null ? `Value: ${value}` : 'Key not found';
+            this.reset();
+        };
+
+        document.getElementById('removeForm').onsubmit = function(e) {
+            e.preventDefault();
+            const key = document.getElementById('removeKey').value;
+            hashTable.remove(key);
+            document.getElementById('output').innerHTML = hashTable.display();
+            this.reset();
+        };
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
